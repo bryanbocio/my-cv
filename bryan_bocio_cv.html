@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es" id="root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bryan Bocio - CV</title>
+  <style>
+    /* ===== CSS Variables ===== */
+    :root {
+      --color-black: #1a1a1a;
+      --color-text: #2d2d2d;
+      --color-subtle: #555555;
+      --color-line: #1a1a1a;
+      --color-bg: #ffffff;
+      --color-link: #2563eb;
+      --page-width: 210mm;
+      --page-min-height: 297mm;
+      --page-padding-x: 22mm;
+      --page-padding-top: 16mm;
+      --page-padding-bottom: 18mm;
+      --font-main: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      --font-heading: 'Georgia', 'Times New Roman', serif;
+    }
+
+    /* ===== Reset ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ===== Body ===== */
+    body {
+      font-family: var(--font-main);
+      font-size: 10.5pt;
+      line-height: 1.45;
+      color: var(--color-text);
+      background: #e8e8e8;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== A4 Page Container ===== */
+    .page {
+      width: var(--page-width);
+      min-height: var(--page-min-height);
+      margin: 20px auto;
+      padding: var(--page-padding-top) var(--page-padding-x) var(--page-padding-bottom);
+      background: var(--color-bg);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+      position: relative;
+    }
+
+    /* ===== Language Toggle (screen only) ===== */
+    .lang-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      font-family: var(--font-main);
+    }
+
+    .lang-btn {
+      padding: 8px 18px;
+      border: none;
+      cursor: pointer;
+      font-size: 10pt;
+      font-weight: 600;
+      transition: background 0.2s, color 0.2s;
+      background: #f0f0f0;
+      color: #666;
+    }
+
+    .lang-btn.active {
+      background: var(--color-black);
+      color: #fff;
+    }
+
+    .lang-btn:hover:not(.active) {
+      background: #ddd;
+    }
+
+    /* ===== Language visibility ===== */
+    [data-lang="en"] { display: none; }
+    [data-lang="es"] { display: inline; }
+
+    html[lang="en"] [data-lang="en"] { display: inline; }
+    html[lang="en"] [data-lang="es"] { display: none; }
+
+    /* Block-level lang elements */
+    p[data-lang], div[data-lang], li[data-lang] {
+      display: none;
+    }
+    p[data-lang="es"], div[data-lang="es"], li[data-lang="es"] {
+      display: block;
+    }
+    html[lang="en"] p[data-lang="en"],
+    html[lang="en"] div[data-lang="en"],
+    html[lang="en"] li[data-lang="en"] {
+      display: block;
+    }
+    html[lang="en"] p[data-lang="es"],
+    html[lang="en"] div[data-lang="es"],
+    html[lang="en"] li[data-lang="es"] {
+      display: none;
+    }
+
+    /* ===== Header ===== */
+    .cv-header {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .cv-name {
+      font-family: var(--font-main);
+      font-size: 36pt;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: var(--color-black);
+      line-height: 1.1;
+      margin-bottom: 2px;
+    }
+
+    .cv-name .code-tag {
+      font-weight: 300;
+      letter-spacing: 0;
+    }
+
+    .cv-title {
+      font-family: var(--font-main);
+      font-size: 10pt;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--color-black);
+      margin-bottom: 4px;
+    }
+
+    .cv-contact {
+      font-size: 9.5pt;
+      color: var(--color-text);
+      margin-bottom: 2px;
+    }
+
+    .cv-contact a {
+      color: var(--color-text);
+      text-decoration: none;
+    }
+
+    .cv-contact a:hover {
+      text-decoration: underline;
+    }
+
+    .cv-links {
+      font-size: 9.5pt;
+      margin-bottom: 10px;
+    }
+
+    .cv-links a {
+      color: var(--color-link);
+      text-decoration: underline;
+      margin: 0 4px;
+    }
+
+    /* ===== Summary ===== */
+    .cv-summary {
+      font-size: 10pt;
+      line-height: 1.5;
+      color: var(--color-text);
+      text-align: left;
+      margin-bottom: 18px;
+      max-width: 100%;
+    }
+
+    /* ===== Section Layout: Two Columns ===== */
+    .cv-body {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    /* ===== Section Headings ===== */
+    .section-title {
+      font-family: var(--font-main);
+      font-size: 14pt;
+      font-weight: 800;
+      color: var(--color-black);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 2px;
+      margin-top: 16px;
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 2px solid var(--color-line);
+      margin-bottom: 12px;
+      margin-top: 4px;
+    }
+
+    /* ===== Experience Block ===== */
+    .experience-item {
+      margin-bottom: 14px;
+    }
+
+    .experience-header {
+      display: flex;
+      justify-content: flex-end;
+      align-items: baseline;
+      margin-bottom: 2px;
+    }
+
+    .experience-date {
+      font-size: 10pt;
+      font-weight: 600;
+      color: var(--color-black);
+      white-space: nowrap;
+    }
+
+    .experience-role {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: var(--color-black);
+      margin-bottom: 4px;
+    }
+
+    .experience-desc {
+      font-size: 10pt;
+      line-height: 1.5;
+      color: var(--color-text);
+    }
+
+    /* ===== Bottom Two-Column Section ===== */
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 40px;
+      margin-top: 4px;
+    }
+
+    /* ===== Education ===== */
+    .education-item {
+      margin-bottom: 10px;
+    }
+
+    .education-school {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: var(--color-black);
+    }
+
+    .education-degree {
+      font-size: 10pt;
+      font-style: italic;
+      color: var(--color-text);
+    }
+
+    /* ===== Technologies ===== */
+    .tech-list {
+      list-style: none;
+    }
+
+    .tech-list li {
+      font-size: 10pt;
+      line-height: 1.7;
+      color: var(--color-text);
+    }
+
+    /* ===== Print Styles ===== */
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    @media print {
+      body {
+        background: white;
+        margin: 0;
+        padding: 0;
+      }
+
+      .page {
+        margin: 0;
+        box-shadow: none;
+        width: 100%;
+        min-height: auto;
+        padding: var(--page-padding-top) var(--page-padding-x) var(--page-padding-bottom);
+        page-break-after: avoid;
+      }
+
+      .lang-toggle {
+        display: none !important;
+      }
+
+      .experience-item,
+      .education-item {
+        page-break-inside: avoid;
+      }
+    }
+
+    /* ===== Responsive ===== */
+    @media screen and (max-width: 800px) {
+      .page {
+        width: 100%;
+        min-height: auto;
+        margin: 0;
+        padding: 16px 20px 24px;
+        box-shadow: none;
+      }
+
+      .cv-name {
+        font-size: 26pt;
+      }
+
+      .bottom-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .lang-toggle {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+      }
+
+      .lang-btn {
+        padding: 6px 14px;
+        font-size: 9pt;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Language Toggle -->
+  <nav class="lang-toggle" aria-label="Language selector">
+    <button class="lang-btn active" id="btn-es" onclick="setLang('es')" aria-pressed="true">Español</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')" aria-pressed="false">English</button>
+  </nav>
+
+  <main class="page" role="main">
+
+    <!-- ===== HEADER ===== -->
+    <header class="cv-header">
+      <h1 class="cv-name">BRYAN BOCIO <span class="code-tag">&lt;/&gt;</span></h1>
+      <p class="cv-title">
+        <span data-lang="es">DESARROLLADOR DE SOFTWARE</span>
+        <span data-lang="en">SOFTWARE ENGINEER</span>
+      </p>
+      <p class="cv-contact">
+        <a href="mailto:bbociodiaz@gmail.com">bbociodiaz@gmail.com</a> &nbsp;829 - 877- 9690
+      </p>
+      <p class="cv-links">
+        <a href="https://linkedin.com/in/bryanbocio" target="_blank" rel="noopener">LinkedIn</a> -
+        <a href="https://github.com/bryanbocio" target="_blank" rel="noopener">GitHub</a>
+      </p>
+    </header>
+
+    <!-- ===== SUMMARY ===== -->
+    <section class="cv-summary" aria-label="Professional summary">
+      <p data-lang="es">Un desarrollador con una curiosidad inagotable, apasionado por el aprendizaje continuo, que constantemente absorbe conocimientos de la comunidad y su entorno profesional.</p>
+      <p data-lang="en">A developer with endless curiosity, passionate about always learning, constantly picking up knowledge from the community and their professional world.</p>
+    </section>
+
+    <!-- ===== WORK EXPERIENCE ===== -->
+    <section aria-label="Work experience">
+      <h2 class="section-title">
+        <span data-lang="es">EXPERIENCIA LABORAL</span>
+        <span data-lang="en">WORK EXPERIENCE</span>
+      </h2>
+      <hr class="section-divider">
+
+      <!-- Ministry of Finance -->
+      <article class="experience-item">
+        <div class="experience-header">
+          <span class="experience-date">2021 - <span data-lang="es">Presente</span><span data-lang="en">Present</span></span>
+        </div>
+        <h3 class="experience-role">
+          <span data-lang="es">Desarrollador de Sistemas - Ministerio de Hacienda de la República Dominicana</span>
+          <span data-lang="en">Software Engineer - Ministry of Finance, Dominican Republic</span>
+        </h3>
+        <p class="experience-desc" data-lang="es">Desarrollar nuevo aplicativo como programador back-end utilizando Jakarta EE y Spring boot con Maven para manejar dependencias, también como front-end en el framework javascript Vue 3, npm como manejadores de dependencias y haciendo integraciones con API's.</p>
+        <p class="experience-desc" data-lang="en">Developed a new software as backend software engineer using Java/Spring-Boot, also front-end programmer using the Vue 3 JavaScript framework, managing dependencies with npm, and integrating with APIs.</p>
+      </article>
+
+      <!-- Beesion -->
+      <article class="experience-item">
+        <div class="experience-header">
+          <span class="experience-date">2025 - 2025</span>
+        </div>
+        <h3 class="experience-role">
+          <span data-lang="es">Senior Software Engineer - Beesion (Estados Unidos de América)</span>
+          <span data-lang="en">Senior Software Engineer - Beesion (United States of America)</span>
+        </h3>
+        <p class="experience-desc" data-lang="es">Encargado de mantenimiento y creación de nuevos módulos en un ecosistema de desarrollo Java, microservicios y arquitectura orientada a eventos utilizando Apache Kafka, migración de versiones y versionamiento de aplicaciones.</p>
+        <p class="experience-desc" data-lang="en">Responsible for maintaining and developing new modules in a Java development ecosystem, working with microservices and event-driven architecture using Apache Kafka, as well as handling version upgrades and application versioning.</p>
+      </article>
+
+      <!-- MAYBLUE -->
+      <article class="experience-item">
+        <div class="experience-header">
+          <span class="experience-date">2024 - 2025</span>
+        </div>
+        <h3 class="experience-role">
+          <span data-lang="es">Senior Software Engineer - MAYBLUE (Madrid, España)</span>
+          <span data-lang="en">Senior Software Engineer - MAYBLUE (Madrid, Spain)</span>
+        </h3>
+        <p class="experience-desc" data-lang="es">Encargarse del mantenimiento, desarrollo y actualización de proyectos de software, proporcionando soluciones de código como usuario de Linux, aplicando las mejores prácticas de Java, gestionando dependencias con Maven y trabajando con tecnologías de Oracle.</p>
+        <p class="experience-desc" data-lang="en">Responsible for maintaining, developing, and updating software projects, providing code solutions as a Linux user, applying best practices in Java, managing dependencies with Maven, and working with Oracle technologies.</p>
+      </article>
+    </section>
+
+    <!-- ===== BOTTOM GRID: EDUCATION + TECHNOLOGIES ===== -->
+    <div class="bottom-grid">
+
+      <!-- EDUCATION -->
+      <section aria-label="Education">
+        <h2 class="section-title">
+          <span data-lang="es">EDUCACIÓN</span>
+          <span data-lang="en">EDUCATION</span>
+        </h2>
+        <hr class="section-divider">
+
+        <article class="education-item">
+          <p class="education-school">Instituto Tecnológico de las Américas ITLA</p>
+          <p class="education-degree">
+            <span data-lang="es">Tecnólogo en Desarrollo de Software</span>
+            <span data-lang="en">Software Development Technologist</span>
+          </p>
+        </article>
+
+        <article class="education-item">
+          <p class="education-school">Politécnico José María Velaz</p>
+          <p class="education-degree">
+            <span data-lang="es">Técnico informático</span>
+            <span data-lang="en">IT Technician</span>
+          </p>
+        </article>
+
+        <article class="education-item">
+          <p class="education-school">MESCyT</p>
+          <p class="education-degree">
+            <em>English Inmersion Program</em>
+          </p>
+        </article>
+      </section>
+
+      <!-- TECHNOLOGIES -->
+      <section aria-label="Technologies">
+        <h2 class="section-title">
+          <span data-lang="es">TECNOLOGÍAS</span>
+          <span data-lang="en">TECHNOLOGIES</span>
+        </h2>
+        <hr class="section-divider">
+
+        <ul class="tech-list" role="list">
+          <li>Java - Spring Boot - MAVEN</li>
+          <li>Vue - Angular - HTML - Tailwind CSS</li>
+          <li>C# - .NET - EntityFramework</li>
+          <li>SQL - ORACLE - Hibernate - Postgre</li>
+          <li>JIRA - GIT - Azure DevOps - SCRUM</li>
+          <li>Docker - NestJs - pnpm</li>
+        </ul>
+      </section>
+
+    </div>
+
+  </main>
+
+  <script>
+    function setLang(lang) {
+      const root = document.getElementById('root');
+      root.setAttribute('lang', lang);
+
+      document.getElementById('btn-es').classList.toggle('active', lang === 'es');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+      document.getElementById('btn-es').setAttribute('aria-pressed', lang === 'es');
+      document.getElementById('btn-en').setAttribute('aria-pressed', lang === 'en');
+    }
+  </script>
+
+</body>
+</html>
