@@ -61,6 +61,17 @@
       overflow: hidden;
       box-shadow: 0 2px 10px rgba(0,0,0,0.2);
       font-family: var(--font-main);
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .lang-toggle.faded {
+      opacity: 0.25;
+    }
+
+    .lang-toggle.faded:hover,
+    .lang-toggle.faded:focus-within {
+      opacity: 1;
     }
 
     .lang-btn {
@@ -116,9 +127,9 @@
 
     .cv-name {
       font-family: var(--font-main);
-      font-size: 36pt;
+      font-size: 28pt;
       font-weight: 900;
-      letter-spacing: 3px;
+      letter-spacing: 1px;
       color: var(--color-black);
       line-height: 1.1;
       margin-bottom: 2px;
@@ -307,8 +318,12 @@
         width: 100%;
         min-height: auto;
         margin: 0;
-        padding: 16px 20px 24px;
+        padding: 20px 28px 28px;
         box-shadow: none;
+      }
+
+      body {
+        padding: 0 4px;
       }
 
       .cv-name {
@@ -471,6 +486,11 @@
   </main>
 
   <script>
+    const langToggle = document.querySelector('.lang-toggle');
+    window.addEventListener('scroll', () => {
+      langToggle.classList.toggle('faded', window.scrollY > 40);
+    }, { passive: true });
+
     function setLang(lang) {
       const root = document.getElementById('root');
       root.setAttribute('lang', lang);
