@@ -50,28 +50,66 @@
       position: relative;
     }
 
-    /* ===== Language Toggle (screen only) ===== */
-    .lang-toggle {
+    /* ===== Floating Toolbar (screen only) ===== */
+    .toolbar {
       position: fixed;
       top: 20px;
       right: 20px;
       z-index: 1000;
       display: flex;
-      border-radius: 6px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      align-items: center;
+      gap: 10px;
       font-family: var(--font-main);
       opacity: 1;
       transition: opacity 0.3s ease;
     }
 
-    .lang-toggle.faded {
+    .toolbar.faded {
       opacity: 0.25;
     }
 
-    .lang-toggle.faded:hover,
-    .lang-toggle.faded:focus-within {
+    .toolbar.faded:hover,
+    .toolbar.faded:focus-within {
       opacity: 1;
+    }
+
+    .lang-toggle {
+      display: flex;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    /* ===== Download PDF Button (screen only) ===== */
+    .pdf-btn {
+      display: inline-flex;
+      text-decoration: none;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: var(--font-main);
+      font-size: 10pt;
+      font-weight: 600;
+      background: var(--color-black);
+      color: #fff;
+      white-space: nowrap;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      transition: background 0.2s;
+    }
+
+    .pdf-btn:hover,
+    .pdf-btn:focus-visible {
+      background: var(--color-link);
+    }
+
+    .pdf-btn svg {
+      width: 13px;
+      height: 13px;
+      fill: currentColor;
+      flex-shrink: 0;
     }
 
     .lang-btn {
@@ -303,7 +341,7 @@
         page-break-after: avoid;
       }
 
-      .lang-toggle {
+      .toolbar {
         display: none !important;
       }
 
@@ -336,14 +374,19 @@
         gap: 0;
       }
 
-      .lang-toggle {
-        position: fixed;
+      .toolbar {
         top: 10px;
         right: 10px;
+        gap: 8px;
       }
 
       .lang-btn {
         padding: 6px 14px;
+        font-size: 9pt;
+      }
+
+      .pdf-btn {
+        padding: 6px 12px;
         font-size: 9pt;
       }
     }
@@ -351,11 +394,27 @@
 </head>
 <body>
 
-  <!-- Language Toggle -->
-  <nav class="lang-toggle" aria-label="Language selector">
-    <button class="lang-btn active" id="btn-es" onclick="setLang('es')" aria-pressed="true">Español</button>
-    <button class="lang-btn" id="btn-en" onclick="setLang('en')" aria-pressed="false">English</button>
-  </nav>
+  <!-- Floating Toolbar: language toggle + download PDF -->
+  <div class="toolbar">
+
+    <!-- Language Toggle -->
+    <nav class="lang-toggle" aria-label="Language selector">
+      <button class="lang-btn active" id="btn-es" onclick="setLang('es')" aria-pressed="true">Español</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')" aria-pressed="false">English</button>
+    </nav>
+
+    <!-- Download PDF -->
+    <a class="pdf-btn" id="btn-pdf" href="pdf/Bryan-Bocio-CV-ES.pdf"
+       download="Bryan-Bocio-CV-ES.pdf">
+      <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path d="M8 1a1 1 0 0 1 1 1v6.586l2.293-2.293a1 1 0 0 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 1.414-1.414L7 8.586V2a1 1 0 0 1 1-1z"/>
+        <path d="M2 12a1 1 0 0 1 1 1v1h10v-1a1 1 0 0 1 2 0v1.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 14.5V13a1 1 0 0 1 1-1z"/>
+      </svg>
+      <span data-lang="es">Descargar PDF</span>
+      <span data-lang="en">Download PDF</span>
+    </a>
+
+  </div>
 
   <main class="page" role="main">
 
@@ -499,10 +558,16 @@
   </main>
 
   <script>
-    const langToggle = document.querySelector('.lang-toggle');
+    const toolbar = document.querySelector('.toolbar');
     window.addEventListener('scroll', () => {
-      langToggle.classList.toggle('faded', window.scrollY > 40);
+      toolbar.classList.toggle('faded', window.scrollY > 40);
     }, { passive: true });
+
+    // Pre-rendered by scripts/build-pdf.ps1 (headless Chrome, same print CSS).
+    const PDF_FILES = {
+      es: 'Bryan-Bocio-CV-ES.pdf',
+      en: 'Bryan-Bocio-CV-EN.pdf'
+    };
 
     function setLang(lang) {
       const root = document.getElementById('root');
@@ -513,7 +578,26 @@
 
       document.getElementById('btn-es').setAttribute('aria-pressed', lang === 'es');
       document.getElementById('btn-en').setAttribute('aria-pressed', lang === 'en');
+
+      // Point the download button at the PDF for the language on screen.
+      const pdfBtn = document.getElementById('btn-pdf');
+      pdfBtn.setAttribute('href', 'pdf/' + PDF_FILES[lang]);
+      pdfBtn.setAttribute('download', PDF_FILES[lang]);
+
+      // Keep the URL shareable (?lang=en). Not allowed on some file:// setups.
+      try {
+        const url = new URL(window.location.href);
+        if (lang === 'es') {
+          url.searchParams.delete('lang');
+        } else {
+          url.searchParams.set('lang', lang);
+        }
+        history.replaceState(null, '', url);
+      } catch (e) { /* ignore */ }
     }
+
+    // Honour ?lang=en on load, so the pre-render script can target each language.
+    setLang(new URLSearchParams(window.location.search).get('lang') === 'en' ? 'en' : 'es');
   </script>
 
 </body>

@@ -1,0 +1,78 @@
+name: Build CV PDFs
+
+# Keeps pdf/ in sync with index.html. The download button on the site serves
+# pre-rendered PDFs, so they have to be rebuilt whenever the CV changes.
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - .github/workflows/build-pdf.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tooling
+        run: |
+          sudo apt-get update
+          # poppler-utils: inspect the result. fonts-liberation: Arial-metric
+          # fallback, since the page asks for Segoe UI first and no Linux box
+          # (nor most visitors' machines) has it.
+          sudo apt-get install -y --no-install-recommends poppler-utils fonts-liberation
+          command -v google-chrome >/dev/null || {
+            echo "::error::google-chrome is not available on this runner image"
+            exit 1
+          }
+          google-chrome --version
+
+      - name: Render PDFs
+        run: |
+          set -euo pipefail
+          mkdir -p pdf
+          render() {
+            local out="$1" url="file://${GITHUB_WORKSPACE}/index.html"
+            if [ -n "$2" ]; then url="${url}?lang=$2"; fi
+            google-chrome --headless --no-sandbox --disable-gpu \
+              --no-pdf-header-footer --virtual-time-budget=5000 \
+              --print-to-pdf="pdf/${out}" "$url"
+          }
+          render Bryan-Bocio-CV-ES.pdf ""
+          render Bryan-Bocio-CV-EN.pdf "en"
+
+      - name: Verify output
+        run: |
+          set -euo pipefail
+          check() {
+            local file="pdf/$1" probe="$2"
+            local pages
+            pages=$(pdfinfo "$file" | awk '/^Pages:/ {print $2}')
+            echo "$file -> ${pages} page(s)"
+            [ "$pages" = "1" ] || { echo "::error::$file is $pages pages, expected 1"; exit 1; }
+            pdftotext "$file" - | grep -qi "$probe" || {
+              echo "::error::$file does not contain '$probe' - wrong language?"
+              exit 1
+            }
+          }
+          check Bryan-Bocio-CV-ES.pdf "EXPERIENCIA LABORAL"
+          check Bryan-Bocio-CV-EN.pdf "WORK EXPERIENCE"
+
+      - name: Commit refreshed PDFs
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- pdf/; then
+            echo "PDFs already up to date."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pdf/
+          git commit -m "chore: rebuild CV PDFs from index.html [skip ci]"
+          git push
